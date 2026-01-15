@@ -285,7 +285,13 @@ const toolboxConfig = {
 const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
     const blocklyDiv = useRef(null);
     const workspaceRef = useRef(null);
+    const onCodeChangeRef = useRef(onCodeChange);
     const [language, setLanguage] = useState('javascript');
+
+    // Keep ref updated with latest callback
+    useEffect(() => {
+        onCodeChangeRef.current = onCodeChange;
+    }, [onCodeChange]);
 
     // Define custom blocks once
     useMemo(() => {
@@ -347,16 +353,15 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
             }
 
             // Listen for workspace changes
-            workspaceRef.current.addChangeListener(() => {
-                if (onCodeChange) {
-                    const code = language === 'python'
-                        ? pythonGenerator.workspaceToCode(workspaceRef.current)
-                        : javascriptGenerator.workspaceToCode(workspaceRef.current);
+            workspaceRef.current.addChangeListener((event) => {
+                // Filter out UI events to reduce unnecessary updates
+                if (event.isUiEvent) return;
 
+                if (onCodeChangeRef.current) {
+                    const code = javascriptGenerator.workspaceToCode(workspaceRef.current);
                     const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
                     const xmlText = Blockly.Xml.domToText(xml);
-
-                    onCodeChange({ code, xml: xmlText, language });
+                    onCodeChangeRef.current({ code, xml: xmlText, language: 'javascript' });
                 }
             });
         }
@@ -370,8 +375,8 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
     }, []);
 
     // Update code when language changes
-    useEffect(() => {
-        if (workspaceRef.current && onCodeChange) {
+    const updateCode = () => {
+        if (workspaceRef.current && onCodeChangeRef.current) {
             const code = language === 'python'
                 ? pythonGenerator.workspaceToCode(workspaceRef.current)
                 : javascriptGenerator.workspaceToCode(workspaceRef.current);
@@ -379,9 +384,26 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
             const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
             const xmlText = Blockly.Xml.domToText(xml);
 
-            onCodeChange({ code, xml: xmlText, language });
+            onCodeChangeRef.current({ code, xml: xmlText, language });
         }
-    }, [language, onCodeChange]);
+    };
+
+    // Handle language change
+    const handleLanguageChange = (lang) => {
+        setLanguage(lang);
+        setTimeout(() => {
+            if (workspaceRef.current && onCodeChangeRef.current) {
+                const code = lang === 'python'
+                    ? pythonGenerator.workspaceToCode(workspaceRef.current)
+                    : javascriptGenerator.workspaceToCode(workspaceRef.current);
+
+                const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
+                const xmlText = Blockly.Xml.domToText(xml);
+
+                onCodeChangeRef.current({ code, xml: xmlText, language: lang });
+            }
+        }, 0);
+    };
 
     return (
         <div className="blockly-workspace-wrapper">
@@ -392,13 +414,13 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
                 <div className="language-toggle">
                     <button
                         className={`lang-btn ${language === 'javascript' ? 'active' : ''}`}
-                        onClick={() => setLanguage('javascript')}
+                        onClick={() => handleLanguageChange('javascript')}
                     >
                         JavaScript
                     </button>
                     <button
                         className={`lang-btn ${language === 'python' ? 'active' : ''}`}
-                        onClick={() => setLanguage('python')}
+                        onClick={() => handleLanguageChange('python')}
                     >
                         Python
                     </button>
