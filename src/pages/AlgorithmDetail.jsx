@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Search, ArrowUpDown, Network, ChevronRight, Play } from 'lucide-react';
 import { getAlgorithmById, getAllAlgorithms } from '../data';
 import ArrayVisualizer from '../components/visualizers/ArrayVisualizer';
 import './AlgorithmDetail.css';
+
+// Icon mapping for categories
+const categoryIcons = {
+    searching: Search,
+    sorting: ArrowUpDown,
+    graph: Network
+};
 
 const AlgorithmDetail = () => {
     const { id } = useParams();
@@ -30,17 +38,19 @@ const AlgorithmDetail = () => {
 
     const getDifficultyClass = (difficulty) => `badge-${difficulty.toLowerCase()}`;
 
+    const IconComponent = categoryIcons[algorithm.category] || Search;
+
     return (
         <div className="algorithm-detail">
             <div className="container">
                 {/* Breadcrumb */}
                 <nav className="breadcrumb">
                     <Link to="/algorithms">Algorithms</Link>
-                    <span className="separator">/</span>
+                    <ChevronRight size={14} className="separator" />
                     <Link to={`/algorithms?category=${algorithm.category}`}>
                         {algorithm.categoryName}
                     </Link>
-                    <span className="separator">/</span>
+                    <ChevronRight size={14} className="separator" />
                     <span className="current">{algorithm.name}</span>
                 </nav>
 
@@ -51,7 +61,7 @@ const AlgorithmDetail = () => {
                             className="detail-icon"
                             style={{ background: algorithm.categoryColor }}
                         >
-                            {algorithm.categoryIcon}
+                            <IconComponent size={32} color="white" />
                         </span>
                         <div className="header-info">
                             <h1>{algorithm.name}</h1>
@@ -74,7 +84,7 @@ const AlgorithmDetail = () => {
                 <div className="detail-content">
                     {/* Visualizer Section */}
                     <section className="detail-section visualizer-section">
-                        <h2>Visualization</h2>
+                        <h2><Play size={20} /> Visualization</h2>
                         <div className="visualizer-container card">
                             <ArrayVisualizer algorithmId={algorithm.id} />
                         </div>

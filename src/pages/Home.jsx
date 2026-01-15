@@ -1,27 +1,35 @@
 import { Link } from 'react-router-dom';
+import { BarChart3, BookOpen, Code2, Search, ArrowUpDown, Network, ArrowRight } from 'lucide-react';
 import { algorithmCategories, getStats } from '../data';
 import './Home.css';
+
+// Icon mapping for categories
+const categoryIcons = {
+    searching: Search,
+    sorting: ArrowUpDown,
+    graph: Network
+};
 
 const Home = () => {
     const stats = getStats();
 
     const features = [
         {
-            icon: '📊',
+            icon: BarChart3,
             title: 'Visualize',
             description: 'Watch algorithms come to life with step-by-step animated visualizations.',
             link: '/algorithms',
-            color: '#7c3aed'
+            color: '#2563eb'
         },
         {
-            icon: '🧩',
+            icon: BookOpen,
             title: 'Learn',
             description: 'Understand complexity, use cases, and implementation details for each algorithm.',
             link: '/algorithms',
-            color: '#3b82f6'
+            color: '#f59e0b'
         },
         {
-            icon: '💻',
+            icon: Code2,
             title: 'Practice',
             description: 'Write and test your own implementations in our interactive playground.',
             link: '/playground',
@@ -49,7 +57,7 @@ const Home = () => {
                         </p>
                         <div className="hero-actions">
                             <Link to="/algorithms" className="btn btn-primary btn-lg">
-                                Start Learning →
+                                Start Learning <ArrowRight size={18} />
                             </Link>
                             <Link to="/playground" className="btn btn-secondary btn-lg">
                                 Try Playground
@@ -59,13 +67,13 @@ const Home = () => {
                     <div className="hero-visual">
                         <div className="hero-illustration">
                             <div className="floating-card floating-card-1">
-                                <span>🔍</span> Search
+                                <Search size={20} /> Search
                             </div>
                             <div className="floating-card floating-card-2">
-                                <span>📊</span> Sort
+                                <ArrowUpDown size={20} /> Sort
                             </div>
                             <div className="floating-card floating-card-3">
-                                <span>🌐</span> Graph
+                                <Network size={20} /> Graph
                             </div>
                             <div className="code-snippet">
                                 <pre>{`function sort(arr) {
@@ -107,18 +115,21 @@ const Home = () => {
                         </p>
                     </div>
                     <div className="features-grid">
-                        {features.map((feature, index) => (
-                            <Link to={feature.link} key={index} className="feature-card card">
-                                <div className="feature-icon" style={{ background: feature.color }}>
-                                    {feature.icon}
-                                </div>
-                                <h3 className="feature-title">{feature.title}</h3>
-                                <p className="feature-description">{feature.description}</p>
-                                <span className="feature-link">
-                                    Explore →
-                                </span>
-                            </Link>
-                        ))}
+                        {features.map((feature, index) => {
+                            const IconComponent = feature.icon;
+                            return (
+                                <Link to={feature.link} key={index} className="feature-card card">
+                                    <div className="feature-icon" style={{ background: feature.color }}>
+                                        <IconComponent size={28} color="white" />
+                                    </div>
+                                    <h3 className="feature-title">{feature.title}</h3>
+                                    <p className="feature-description">{feature.description}</p>
+                                    <span className="feature-link">
+                                        Explore <ArrowRight size={16} />
+                                    </span>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -133,38 +144,41 @@ const Home = () => {
                         </p>
                     </div>
                     <div className="categories-grid">
-                        {algorithmCategories.map((category) => (
-                            <Link
-                                to={`/algorithms?category=${category.id}`}
-                                key={category.id}
-                                className="category-card card"
-                            >
-                                <div className="category-header">
-                                    <span className="category-icon" style={{ background: category.color }}>
-                                        {category.icon}
-                                    </span>
-                                    <div className="category-info">
-                                        <h3 className="category-name">{category.name}</h3>
-                                        <p className="category-count">
-                                            {category.algorithms.length} algorithms
-                                        </p>
+                        {algorithmCategories.map((category) => {
+                            const IconComponent = categoryIcons[category.id] || Search;
+                            return (
+                                <Link
+                                    to={`/algorithms?category=${category.id}`}
+                                    key={category.id}
+                                    className="category-card card"
+                                >
+                                    <div className="category-header">
+                                        <span className="category-icon" style={{ background: category.color }}>
+                                            <IconComponent size={24} color="white" />
+                                        </span>
+                                        <div className="category-info">
+                                            <h3 className="category-name">{category.name}</h3>
+                                            <p className="category-count">
+                                                {category.algorithms.length} algorithms
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="category-description">{category.description}</p>
-                                <div className="category-algorithms">
-                                    {category.algorithms.slice(0, 3).map((algo) => (
-                                        <span key={algo.id} className="algo-chip">
-                                            {algo.name}
-                                        </span>
-                                    ))}
-                                    {category.algorithms.length > 3 && (
-                                        <span className="algo-chip algo-chip-more">
-                                            +{category.algorithms.length - 3} more
-                                        </span>
-                                    )}
-                                </div>
-                            </Link>
-                        ))}
+                                    <p className="category-description">{category.description}</p>
+                                    <div className="category-algorithms">
+                                        {category.algorithms.slice(0, 3).map((algo) => (
+                                            <span key={algo.id} className="algo-chip">
+                                                {algo.name}
+                                            </span>
+                                        ))}
+                                        {category.algorithms.length > 3 && (
+                                            <span className="algo-chip algo-chip-more">
+                                                +{category.algorithms.length - 3} more
+                                            </span>
+                                        )}
+                                    </div>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -176,7 +190,7 @@ const Home = () => {
                         <h2>Ready to Start Learning?</h2>
                         <p>Join thousands of learners mastering algorithms through visualization</p>
                         <Link to="/algorithms" className="btn btn-primary btn-lg">
-                            Browse All Algorithms →
+                            Browse All Algorithms <ArrowRight size={18} />
                         </Link>
                     </div>
                 </div>

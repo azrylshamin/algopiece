@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Github } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
@@ -10,7 +11,7 @@ const Footer = () => {
                 <div className="footer-content">
                     <div className="footer-brand">
                         <Link to="/" className="footer-logo">
-                            <span className="logo-icon">🧩</span>
+                            <img src="/logo.png" alt="AlgoPiece" className="footer-logo-img" />
                             <span className="logo-text">AlgoPiece</span>
                         </Link>
                         <p className="footer-tagline">
@@ -36,7 +37,8 @@ const Footer = () => {
 
                         <div className="footer-section">
                             <h4>Connect</h4>
-                            <a href="https://github.com/azrylshamin/algopiece" target="_blank" rel="noopener noreferrer">
+                            <a href="https://github.com/azrylshamin/algopiece" target="_blank" rel="noopener noreferrer" className="github-link">
+                                <Github size={16} />
                                 GitHub
                             </a>
                         </div>

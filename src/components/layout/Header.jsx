@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 import './Header.css';
 
 const Header = () => {
@@ -35,7 +36,7 @@ const Header = () => {
     <header className={`header ${isScrolled ? 'header-scrolled' : ''}`}>
       <div className="container header-container">
         <Link to="/" className="header-logo">
-          <span className="logo-icon">🧩</span>
+          <img src="/logo.png" alt="AlgoPiece" className="logo-img" />
           <span className="logo-text">AlgoPiece</span>
         </Link>
 
@@ -53,20 +54,20 @@ const Header = () => {
         </nav>
 
         <div className="header-actions">
-          <button 
-            className="btn-icon theme-toggle" 
+          <button
+            className="btn-icon theme-toggle"
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
-          
-          <button 
+
+          <button
             className="btn-icon mobile-menu-toggle"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? '✕' : '☰'}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>

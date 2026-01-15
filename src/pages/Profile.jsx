@@ -1,4 +1,8 @@
 import {
+    Star, Flame, Trophy, Target, Search, Award,
+    CheckCircle, TrendingUp
+} from 'lucide-react';
+import {
     currentUser,
     learningProgress,
     badges,
@@ -10,6 +14,18 @@ import {
 } from '../data';
 import { algorithmCategories, getAlgorithmById } from '../data';
 import './Profile.css';
+
+// Badge icon mapping
+const badgeIcons = {
+    'first-step': Target,
+    'search-master': Search,
+    'sort-beginner': TrendingUp,
+    'streak-7': Flame,
+    'sort-master': Trophy,
+    'graph-explorer': TrendingUp,
+    'perfectionist': Star,
+    'speed-demon': Flame
+};
 
 const Profile = () => {
     const userProgress = getUserProgress();
@@ -28,10 +44,10 @@ const Profile = () => {
 
     // Calculate streak text
     const getStreakText = (streak) => {
-        if (streak >= 30) return '🔥 On fire!';
-        if (streak >= 7) return '💪 Great progress!';
-        if (streak >= 3) return '👍 Keep going!';
-        return '🌱 Just starting';
+        if (streak >= 30) return 'On fire!';
+        if (streak >= 7) return 'Great progress!';
+        if (streak >= 3) return 'Keep going!';
+        return 'Just starting';
     };
 
     return (
@@ -53,15 +69,15 @@ const Profile = () => {
                                 <p className="user-email">{currentUser.email}</p>
                                 <div className="user-stats">
                                     <div className="stat">
-                                        <span className="stat-icon">⭐</span>
+                                        <Star size={16} className="stat-icon" />
                                         <span className="stat-value">Level {currentUser.level}</span>
                                     </div>
                                     <div className="stat">
-                                        <span className="stat-icon">🔥</span>
+                                        <Flame size={16} className="stat-icon" />
                                         <span className="stat-value">{currentUser.streak} day streak</span>
                                     </div>
                                     <div className="stat">
-                                        <span className="stat-icon">🏆</span>
+                                        <Trophy size={16} className="stat-icon" />
                                         <span className="stat-value">{unlockedBadges.length} badges</span>
                                     </div>
                                 </div>
@@ -111,7 +127,9 @@ const Profile = () => {
                                     </div>
                                     <div className="progress-details">
                                         <p>{userProgress.completed} of {userProgress.total} algorithms completed</p>
-                                        <p className="progress-motivation">{getStreakText(currentUser.streak)}</p>
+                                        <p className="progress-motivation">
+                                            <Flame size={18} /> {getStreakText(currentUser.streak)}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -123,7 +141,7 @@ const Profile = () => {
                                             <div key={category.id} className="category-progress-item">
                                                 <div className="category-info">
                                                     <span className="category-icon" style={{ background: category.color }}>
-                                                        {category.icon}
+                                                        <Search size={16} color="white" />
                                                     </span>
                                                     <span className="category-name">{category.name}</span>
                                                     <span className="category-count">
@@ -181,19 +199,24 @@ const Profile = () => {
                             <h2>Badges</h2>
                             <div className="card badges-card">
                                 <div className="badges-grid">
-                                    {badges.map((badge) => (
-                                        <div
-                                            key={badge.id}
-                                            className={`badge-item ${badge.unlocked ? 'unlocked' : 'locked'}`}
-                                            title={badge.description}
-                                        >
-                                            <span className="badge-icon">{badge.icon}</span>
-                                            <span className="badge-name">{badge.name}</span>
-                                            {badge.unlocked && badge.earnedDate && (
-                                                <span className="badge-date">{formatDate(badge.earnedDate)}</span>
-                                            )}
-                                        </div>
-                                    ))}
+                                    {badges.map((badge) => {
+                                        const IconComponent = badgeIcons[badge.id] || Award;
+                                        return (
+                                            <div
+                                                key={badge.id}
+                                                className={`badge-item ${badge.unlocked ? 'unlocked' : 'locked'}`}
+                                                title={badge.description}
+                                            >
+                                                <span className="badge-icon">
+                                                    <IconComponent size={24} />
+                                                </span>
+                                                <span className="badge-name">{badge.name}</span>
+                                                {badge.unlocked && badge.earnedDate && (
+                                                    <span className="badge-date">{formatDate(badge.earnedDate)}</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </section>
@@ -206,7 +229,11 @@ const Profile = () => {
                                     {recentActivity.map((activity, index) => (
                                         <div key={index} className="activity-item">
                                             <span className="activity-icon">
-                                                {activity.type === 'completed' ? '✅' : '🏆'}
+                                                {activity.type === 'completed' ? (
+                                                    <CheckCircle size={18} color="var(--color-success)" />
+                                                ) : (
+                                                    <Trophy size={18} color="var(--color-accent)" />
+                                                )}
                                             </span>
                                             <div className="activity-content">
                                                 <p className="activity-message">{activity.message}</p>

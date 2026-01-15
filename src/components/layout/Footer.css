@@ -32,15 +32,18 @@
     margin-bottom: var(--space-4);
 }
 
+.footer-logo-img {
+    height: 32px;
+    width: auto;
+}
+
 .footer-logo .logo-icon {
     font-size: var(--font-size-2xl);
 }
 
 .footer-logo .logo-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
 }
 
 .footer-tagline {

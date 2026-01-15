@@ -1,6 +1,14 @@
 import { useState } from 'react';
+import { Play, Search, ArrowUpDown, Network, Loader2 } from 'lucide-react';
 import { getAllAlgorithms } from '../data';
 import './Playground.css';
+
+// Icon mapping for categories
+const categoryIcons = {
+    searching: Search,
+    sorting: ArrowUpDown,
+    graph: Network
+};
 
 const Playground = () => {
     const algorithms = getAllAlgorithms();
@@ -33,23 +41,23 @@ const Playground = () => {
             try {
                 // For demo purposes, show example output
                 const exampleOutputs = {
-                    'bubble-sort': 'Input: [64, 34, 25, 12, 22, 11, 90]\nOutput: [11, 12, 22, 25, 34, 64, 90]\n\n✅ Array sorted successfully!',
-                    'insertion-sort': 'Input: [12, 11, 13, 5, 6]\nOutput: [5, 6, 11, 12, 13]\n\n✅ Array sorted successfully!',
-                    'merge-sort': 'Input: [38, 27, 43, 3, 9, 82, 10]\nOutput: [3, 9, 10, 27, 38, 43, 82]\n\n✅ Array sorted successfully!',
-                    'quick-sort': 'Input: [10, 7, 8, 9, 1, 5]\nOutput: [1, 5, 7, 8, 9, 10]\n\n✅ Array sorted successfully!',
-                    'linear-search': 'Input: arr = [2, 3, 4, 10, 40], target = 10\nOutput: Element found at index 3\n\n✅ Search completed!',
-                    'binary-search': 'Input: arr = [2, 3, 4, 10, 40], target = 10\nOutput: Element found at index 3\n\n✅ Search completed!',
-                    'bfs': 'Graph: { A: [B, C], B: [D], C: [E], D: [], E: [] }\nStarting from: A\nBFS Order: A → B → C → D → E\n\n✅ Traversal completed!',
-                    'dfs': 'Graph: { A: [B, C], B: [D], C: [E], D: [], E: [] }\nStarting from: A\nDFS Order: A → B → D → C → E\n\n✅ Traversal completed!',
-                    'dijkstra': 'Graph with weights from node A\nShortest distances:\n  A: 0\n  B: 4\n  C: 2\n  D: 7\n\n✅ Algorithm completed!',
+                    'bubble-sort': 'Input: [64, 34, 25, 12, 22, 11, 90]\nOutput: [11, 12, 22, 25, 34, 64, 90]\n\n✓ Array sorted successfully!',
+                    'insertion-sort': 'Input: [12, 11, 13, 5, 6]\nOutput: [5, 6, 11, 12, 13]\n\n✓ Array sorted successfully!',
+                    'merge-sort': 'Input: [38, 27, 43, 3, 9, 82, 10]\nOutput: [3, 9, 10, 27, 38, 43, 82]\n\n✓ Array sorted successfully!',
+                    'quick-sort': 'Input: [10, 7, 8, 9, 1, 5]\nOutput: [1, 5, 7, 8, 9, 10]\n\n✓ Array sorted successfully!',
+                    'linear-search': 'Input: arr = [2, 3, 4, 10, 40], target = 10\nOutput: Element found at index 3\n\n✓ Search completed!',
+                    'binary-search': 'Input: arr = [2, 3, 4, 10, 40], target = 10\nOutput: Element found at index 3\n\n✓ Search completed!',
+                    'bfs': 'Graph: { A: [B, C], B: [D], C: [E], D: [], E: [] }\nStarting from: A\nBFS Order: A → B → C → D → E\n\n✓ Traversal completed!',
+                    'dfs': 'Graph: { A: [B, C], B: [D], C: [E], D: [], E: [] }\nStarting from: A\nDFS Order: A → B → D → C → E\n\n✓ Traversal completed!',
+                    'dijkstra': 'Graph with weights from node A\nShortest distances:\n  A: 0\n  B: 4\n  C: 2\n  D: 7\n\n✓ Algorithm completed!',
                 };
 
                 const result = exampleOutputs[selectedAlgo.id] ||
-                    '✅ Code executed successfully!\n\nNote: This is a demo playground. Output is simulated.';
+                    '✓ Code executed successfully!\n\nNote: This is a demo playground. Output is simulated.';
 
                 setOutput(result);
             } catch (error) {
-                setOutput(`❌ Error: ${error.message}`);
+                setOutput(`✗ Error: ${error.message}`);
             }
             setIsRunning(false);
         }, 1000);
@@ -69,16 +77,19 @@ const Playground = () => {
                     <aside className="algo-sidebar">
                         <h3>Algorithms</h3>
                         <div className="algo-list">
-                            {algorithms.map((algo) => (
-                                <button
-                                    key={algo.id}
-                                    className={`algo-item ${selectedAlgo.id === algo.id ? 'active' : ''}`}
-                                    onClick={() => handleAlgoChange(algo.id)}
-                                >
-                                    <span className="algo-icon">{algo.categoryIcon}</span>
-                                    <span className="algo-name">{algo.name}</span>
-                                </button>
-                            ))}
+                            {algorithms.map((algo) => {
+                                const IconComponent = categoryIcons[algo.category] || Search;
+                                return (
+                                    <button
+                                        key={algo.id}
+                                        className={`algo-item ${selectedAlgo.id === algo.id ? 'active' : ''}`}
+                                        onClick={() => handleAlgoChange(algo.id)}
+                                    >
+                                        <IconComponent size={16} className="algo-icon" />
+                                        <span className="algo-name">{algo.name}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </aside>
 
@@ -112,7 +123,15 @@ const Playground = () => {
                                     onClick={runCode}
                                     disabled={isRunning}
                                 >
-                                    {isRunning ? '⏳ Running...' : '▶ Run Code'}
+                                    {isRunning ? (
+                                        <>
+                                            <Loader2 size={16} className="spin" /> Running...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Play size={16} /> Run Code
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>
