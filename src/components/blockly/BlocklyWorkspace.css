@@ -82,6 +82,15 @@
     border-right: 1px solid var(--color-border) !important;
 }
 
+[data-theme="dark"] .blocklyToolboxDiv {
+    background-color: var(--color-bg-secondary) !important;
+    border-right: 1px solid var(--color-border-light) !important;
+}
+
+[data-theme="dark"] .blocklyTreeLabel {
+    color: var(--color-text) !important;
+}
+
 .blocklyTreeLabel {
     font-family: 'Inter', sans-serif !important;
 }

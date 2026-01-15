@@ -406,6 +406,74 @@ const BlocklyWorkspace = ({ onCodeChange, initialJson }) => {
         }, 0);
     };
 
+    // Theme Management
+    useEffect(() => {
+        if (!workspaceRef.current) return;
+
+        // Define nice themes that match our variables
+        const lightTheme = Blockly.Theme.defineTheme('algopiece-light', {
+            'base': Blockly.Themes.Classic,
+            'componentStyles': {
+                'workspaceBackgroundColour': '#ffffff',
+                'toolboxBackgroundColour': '#f1f5f9', // slate-100
+                'toolboxForegroundColour': '#1e293b', // slate-800
+                'flyoutBackgroundColour': '#ffffff',
+                'flyoutForegroundColour': '#1e293b',
+                'flyoutOpacity': 1,
+                'scrollbarColour': '#cbd5e1',
+                'insertionMarkerColour': '#000',
+                'insertionMarkerOpacity': 0.3,
+                'scrollbarOpacity': 0.4,
+                'cursorColour': '#000'
+            }
+        });
+
+        const darkTheme = Blockly.Theme.defineTheme('algopiece-dark', {
+            'base': Blockly.Themes.Classic,
+            'componentStyles': {
+                'workspaceBackgroundColour': '#1e293b', // slate-800
+                'toolboxBackgroundColour': '#1e293b', // slate-800 - match workspace or slightly lighter/darker
+                'toolboxForegroundColour': '#f1f5f9', // slate-100
+                'flyoutBackgroundColour': '#334155', // slate-700
+                'flyoutForegroundColour': '#f1f5f9',
+                'flyoutOpacity': 1,
+                'scrollbarColour': '#64748b',
+                'insertionMarkerColour': '#fff',
+                'insertionMarkerOpacity': 0.3,
+                'scrollbarOpacity': 0.4,
+                'cursorColour': '#fff'
+            }
+        });
+
+        // Function to update theme based on DOM attribute
+        const updateTheme = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? darkTheme : lightTheme;
+            workspaceRef.current.setTheme(targetTheme);
+        };
+
+        // Initial set
+        updateTheme();
+
+        // Observe changes to data-theme attribute
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                    updateTheme();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+
+        return () => {
+            observer.disconnect();
+        };
+    }, []);
+
     return (
         <div className="blockly-workspace-wrapper">
             <div className="blockly-header">
