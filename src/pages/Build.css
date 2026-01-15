@@ -1,0 +1,164 @@
+/* ============================================
+   Build Page Styles
+   ============================================ */
+
+.build-page {
+    padding: var(--space-8) 0 var(--space-20);
+}
+
+.build-page .page-header h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+/* Layout */
+.build-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+    min-height: 550px;
+}
+
+/* Blockly Panel */
+.blockly-panel {
+    min-height: 500px;
+}
+
+/* Code Panel */
+.code-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.code-section,
+.output-section {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.code-header,
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.code-header h3,
+.output-header h3 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+}
+
+.code-display,
+.output-display {
+    flex: 1;
+    padding: var(--space-4);
+    overflow: auto;
+    background: var(--color-bg);
+}
+
+.code-display pre,
+.output-display pre {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+    white-space: pre-wrap;
+    color: var(--color-text-secondary);
+}
+
+.code-section {
+    flex: 1;
+}
+
+.output-section {
+    height: 200px;
+}
+
+/* Help Section */
+.help-section {
+    padding: var(--space-6);
+}
+
+.help-section h3 {
+    margin-bottom: var(--space-4);
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+}
+
+.help-item {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+}
+
+.help-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+}
+
+.help-item strong {
+    display: block;
+    margin-bottom: var(--space-1);
+}
+
+.help-item p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Button variants */
+.btn-sm {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .build-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .blockly-panel {
+        min-height: 400px;
+    }
+
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+}

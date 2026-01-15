@@ -1,0 +1,83 @@
+/* ============================================
+   Blockly Workspace Styles
+   ============================================ */
+
+.blockly-workspace-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+}
+
+.blockly-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.blockly-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.language-toggle {
+    display: flex;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 2px;
+}
+
+.lang-btn {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.lang-btn:hover {
+    color: var(--color-text);
+}
+
+.lang-btn.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.blockly-container {
+    flex: 1;
+    min-height: 400px;
+}
+
+/* Blockly theme overrides */
+.blocklyMainBackground {
+    fill: var(--color-bg-secondary) !important;
+}
+
+.blocklyToolboxDiv {
+    background: var(--color-bg-tertiary) !important;
+    border-right: 1px solid var(--color-border) !important;
+}
+
+.blocklyTreeLabel {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.blocklyFlyout {
+    border-radius: var(--radius-md) !important;
+}
+
+.blocklyZoom>image {
+    opacity: 0.7;
+}
+
+.blocklyZoom>image:hover {
+    opacity: 1;
+}

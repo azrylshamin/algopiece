@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout';
-import { Home, Algorithms, AlgorithmDetail, Playground, Profile } from './pages';
+import { Home, Algorithms, AlgorithmDetail, Playground, Profile, Build } from './pages';
 import './index.css';
 
 function App() {
@@ -12,6 +12,7 @@ function App() {
           <Route path="/algorithms" element={<Algorithms />} />
           <Route path="/algorithms/:id" element={<AlgorithmDetail />} />
           <Route path="/playground" element={<Playground />} />
+          <Route path="/build" element={<Build />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
