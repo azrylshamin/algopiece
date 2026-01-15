@@ -1,0 +1,214 @@
+/* ============================================
+   Algorithms Page Styles
+   ============================================ */
+
+.algorithms-page {
+    padding: var(--space-8) 0 var(--space-20);
+}
+
+/* Page Header */
+.page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+}
+
+.page-header h1 {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-4);
+}
+
+.page-header p {
+    font-size: var(--font-size-lg);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Filters */
+.filters {
+    margin-bottom: var(--space-6);
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: var(--space-4);
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-lg);
+}
+
+.search-input {
+    padding-left: var(--space-12);
+    max-width: 400px;
+}
+
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+}
+
+.tab:hover {
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.tab.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.tab-icon {
+    font-size: var(--font-size-base);
+}
+
+/* Results Info */
+.results-info {
+    margin-bottom: var(--space-6);
+}
+
+.results-count {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+/* Algorithms Grid */
+.algorithms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+}
+
+.algorithm-card {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.algo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-4);
+}
+
+.algo-category-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-xl);
+}
+
+.algo-name {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+}
+
+.algo-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+    flex-grow: 1;
+}
+
+.algo-meta {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+}
+
+.complexity-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.complexity-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.complexity-value {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.algo-action {
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: transform var(--transition-fast);
+}
+
+.algorithm-card:hover .algo-action {
+    transform: translateX(4px);
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: var(--space-16) 0;
+}
+
+.no-results-icon {
+    font-size: var(--font-size-5xl);
+    display: block;
+    margin-bottom: var(--space-4);
+    opacity: 0.5;
+}
+
+.no-results h3 {
+    margin-bottom: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .algorithms-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .algorithms-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: var(--space-2);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+        flex-shrink: 0;
+    }
+}
