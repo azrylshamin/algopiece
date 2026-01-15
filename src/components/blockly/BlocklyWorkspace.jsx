@@ -229,6 +229,7 @@ const toolboxConfig = {
                 { kind: 'block', type: 'compare_elements' },
                 { kind: 'block', type: 'logic_compare' },
                 { kind: 'block', type: 'logic_operation' },
+                { kind: 'block', type: 'logic_negate' },
                 { kind: 'block', type: 'logic_boolean' },
             ]
         },
@@ -240,6 +241,7 @@ const toolboxConfig = {
                 { kind: 'block', type: 'controls_repeat_ext' },
                 { kind: 'block', type: 'controls_whileUntil' },
                 { kind: 'block', type: 'controls_for' },
+                { kind: 'block', type: 'controls_forEach' },
             ]
         },
         {
@@ -250,7 +252,20 @@ const toolboxConfig = {
                 { kind: 'block', type: 'math_number' },
                 { kind: 'block', type: 'math_arithmetic' },
                 { kind: 'block', type: 'math_modulo' },
+                { kind: 'block', type: 'math_random_int' },
             ]
+        },
+        {
+            kind: 'category',
+            name: 'Variables',
+            colour: '#ef4444',
+            custom: 'VARIABLE'
+        },
+        {
+            kind: 'category',
+            name: 'Functions',
+            colour: '#6366f1',
+            custom: 'PROCEDURE'
         },
         {
             kind: 'category',
@@ -258,6 +273,7 @@ const toolboxConfig = {
             colour: '#06b6d4',
             contents: [
                 { kind: 'block', type: 'text' },
+                { kind: 'block', type: 'text_join' },
                 { kind: 'block', type: 'print_step' },
             ]
         },
