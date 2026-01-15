@@ -4,13 +4,13 @@ import { BlocklyWorkspace } from '../components/blockly';
 import './Build.css';
 
 const Build = () => {
-    const [generatedCode, setGeneratedCode] = useState({ code: '', xml: '', language: 'javascript' });
+    const [generatedCode, setGeneratedCode] = useState({ code: '', json: null, language: 'javascript' });
     const [output, setOutput] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleCodeChange = ({ code, xml, language }) => {
-        setGeneratedCode({ code, xml, language });
+    const handleCodeChange = ({ code, json, language }) => {
+        setGeneratedCode({ code, json, language });
     };
 
     const runCode = () => {

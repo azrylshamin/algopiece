@@ -1,11 +1,35 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Blockly from 'blockly/core';
-import 'blockly/blocks';
+import * as libraryBlocks from 'blockly/blocks';
+import * as En from 'blockly/msg/en';
 import { javascriptGenerator } from 'blockly/javascript';
 import { pythonGenerator } from 'blockly/python';
 import './BlocklyWorkspace.css';
 
-// Custom algorithm blocks - define all blocks we need
+// Set locale to English to fix "Message does not reference all args" errors
+Blockly.setLocale(En);
+
+/**
+ * Polyfill for deprecated Blockly v12 variable APIs.
+ * Some built-in blocks or plugins might still be calling these.
+ */
+if (typeof Blockly.Workspace.prototype.getAllVariables !== 'function') {
+    Blockly.Workspace.prototype.getAllVariables = function () {
+        return this.getVariableMap().getAllVariables();
+    };
+}
+if (typeof Blockly.Workspace.prototype.getVariableById !== 'function') {
+    Blockly.Workspace.prototype.getVariableById = function (id) {
+        return this.getVariableMap().getVariableById(id);
+    };
+}
+if (typeof Blockly.Workspace.prototype.getVariable !== 'function') {
+    Blockly.Workspace.prototype.getVariable = function (name) {
+        return this.getVariableMap().getVariable(name);
+    };
+}
+
+// Custom algorithm blocks - define array and output blocks
 const defineCustomBlocks = () => {
     // Array operations
     Blockly.Blocks['array_create'] = {
@@ -82,210 +106,19 @@ const defineCustomBlocks = () => {
         }
     };
 
-    // Custom compare block
-    Blockly.Blocks['compare_values'] = {
-        init: function () {
-            this.appendValueInput("LEFT");
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([
-                    [">", "GT"],
-                    ["<", "LT"],
-                    [">=", "GTE"],
-                    ["<=", "LTE"],
-                    ["=", "EQ"],
-                    ["≠", "NEQ"]
-                ]), "OP");
-            this.appendValueInput("RIGHT");
-            this.setInputsInline(true);
-            this.setOutput(true, "Boolean");
-            this.setColour(210);
-            this.setTooltip("Compare two values");
-        }
-    };
-
-    // Custom if block
-    Blockly.Blocks['custom_if'] = {
-        init: function () {
-            this.appendValueInput("CONDITION")
-                .setCheck("Boolean")
-                .appendField("if");
-            this.appendStatementInput("DO")
-                .appendField("do");
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(210);
-            this.setTooltip("If condition is true, do something");
-        }
-    };
-
-    // Custom if-else block
-    Blockly.Blocks['custom_if_else'] = {
-        init: function () {
-            this.appendValueInput("CONDITION")
-                .setCheck("Boolean")
-                .appendField("if");
-            this.appendStatementInput("DO")
-                .appendField("do");
-            this.appendStatementInput("ELSE")
-                .appendField("else");
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(210);
-            this.setTooltip("If-else statement");
-        }
-    };
-
-    // Custom for loop
-    Blockly.Blocks['custom_for'] = {
-        init: function () {
-            this.appendDummyInput()
-                .appendField("for")
-                .appendField(new Blockly.FieldVariable("i"), "VAR")
-                .appendField("from");
-            this.appendValueInput("FROM")
-                .setCheck("Number");
-            this.appendValueInput("TO")
-                .setCheck("Number")
-                .appendField("to");
-            this.appendStatementInput("DO")
-                .appendField("do");
-            this.setInputsInline(true);
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(120);
-            this.setTooltip("For loop from start to end");
-        }
-    };
-
-    // Custom while loop
-    Blockly.Blocks['custom_while'] = {
-        init: function () {
-            this.appendValueInput("CONDITION")
-                .setCheck("Boolean")
-                .appendField("while");
-            this.appendStatementInput("DO")
-                .appendField("do");
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(120);
-            this.setTooltip("While condition is true, repeat");
-        }
-    };
-
-    // Custom repeat block
-    Blockly.Blocks['custom_repeat'] = {
-        init: function () {
-            this.appendValueInput("TIMES")
-                .setCheck("Number")
-                .appendField("repeat");
-            this.appendStatementInput("DO")
-                .appendField("times do");
-            this.setInputsInline(true);
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(120);
-            this.setTooltip("Repeat N times");
-        }
-    };
-
-    // Number block
-    Blockly.Blocks['custom_number'] = {
-        init: function () {
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldNumber(0), "NUM");
-            this.setOutput(true, "Number");
-            this.setColour(230);
-            this.setTooltip("A number");
-        }
-    };
-
-    // Math operation
-    Blockly.Blocks['custom_math'] = {
-        init: function () {
-            this.appendValueInput("A")
-                .setCheck("Number");
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([
-                    ["+", "ADD"],
-                    ["-", "SUB"],
-                    ["×", "MUL"],
-                    ["÷", "DIV"],
-                    ["%", "MOD"]
-                ]), "OP");
-            this.appendValueInput("B")
-                .setCheck("Number");
-            this.setInputsInline(true);
-            this.setOutput(true, "Number");
-            this.setColour(230);
-            this.setTooltip("Math operation");
-        }
-    };
-
     // Print block
-    Blockly.Blocks['print_value'] = {
+    Blockly.Blocks['print_step'] = {
         init: function () {
             this.appendValueInput("VALUE")
-                .appendField("print");
+                .appendField("log step");
             this.setPreviousStatement(true, null);
             this.setNextStatement(true, null);
             this.setColour(160);
-            this.setTooltip("Print a value to console");
+            this.setTooltip("Log a step to the visualizer");
         }
     };
 
-    // Text block
-    Blockly.Blocks['custom_text'] = {
-        init: function () {
-            this.appendDummyInput()
-                .appendField('"')
-                .appendField(new Blockly.FieldTextInput("hello"), "TEXT")
-                .appendField('"');
-            this.setOutput(true, "String");
-            this.setColour(160);
-            this.setTooltip("A text string");
-        }
-    };
-
-    // Variable get block
-    Blockly.Blocks['get_variable'] = {
-        init: function () {
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldVariable("item"), "VAR");
-            this.setOutput(true, null);
-            this.setColour(330);
-            this.setTooltip("Get a variable");
-        }
-    };
-
-    // Variable set block
-    Blockly.Blocks['set_variable'] = {
-        init: function () {
-            this.appendValueInput("VALUE")
-                .appendField("set")
-                .appendField(new Blockly.FieldVariable("item"), "VAR")
-                .appendField("to");
-            this.setPreviousStatement(true, null);
-            this.setNextStatement(true, null);
-            this.setColour(330);
-            this.setTooltip("Set a variable");
-        }
-    };
-
-    // Boolean block
-    Blockly.Blocks['custom_boolean'] = {
-        init: function () {
-            this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown([
-                    ["true", "TRUE"],
-                    ["false", "FALSE"]
-                ]), "BOOL");
-            this.setOutput(true, "Boolean");
-            this.setColour(210);
-            this.setTooltip("Boolean true/false");
-        }
-    };
-
-    // JavaScript code generators
+    // JavaScript generators for custom blocks
     javascriptGenerator.forBlock['array_create'] = function (block) {
         const values = block.getFieldValue('VALUES');
         return [`${values}`, javascriptGenerator.ORDER_ATOMIC];
@@ -316,88 +149,12 @@ const defineCustomBlocks = () => {
         return `[${array}[${i}], ${array}[${j}]] = [${array}[${j}], ${array}[${i}]];\n`;
     };
 
-    javascriptGenerator.forBlock['compare_values'] = function (block) {
-        const left = javascriptGenerator.valueToCode(block, 'LEFT', javascriptGenerator.ORDER_RELATIONAL) || '0';
-        const right = javascriptGenerator.valueToCode(block, 'RIGHT', javascriptGenerator.ORDER_RELATIONAL) || '0';
-        const op = block.getFieldValue('OP');
-        const operators = { GT: '>', LT: '<', GTE: '>=', LTE: '<=', EQ: '===', NEQ: '!==' };
-        return [`${left} ${operators[op]} ${right}`, javascriptGenerator.ORDER_RELATIONAL];
-    };
-
-    javascriptGenerator.forBlock['custom_if'] = function (block) {
-        const condition = javascriptGenerator.valueToCode(block, 'CONDITION', javascriptGenerator.ORDER_NONE) || 'false';
-        const statements = javascriptGenerator.statementToCode(block, 'DO');
-        return `if (${condition}) {\n${statements}}\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_if_else'] = function (block) {
-        const condition = javascriptGenerator.valueToCode(block, 'CONDITION', javascriptGenerator.ORDER_NONE) || 'false';
-        const doStatements = javascriptGenerator.statementToCode(block, 'DO');
-        const elseStatements = javascriptGenerator.statementToCode(block, 'ELSE');
-        return `if (${condition}) {\n${doStatements}} else {\n${elseStatements}}\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_for'] = function (block) {
-        const variable = javascriptGenerator.getVariableName(block.getFieldValue('VAR'));
-        const from = javascriptGenerator.valueToCode(block, 'FROM', javascriptGenerator.ORDER_ASSIGNMENT) || '0';
-        const to = javascriptGenerator.valueToCode(block, 'TO', javascriptGenerator.ORDER_ASSIGNMENT) || '10';
-        const statements = javascriptGenerator.statementToCode(block, 'DO');
-        return `for (let ${variable} = ${from}; ${variable} < ${to}; ${variable}++) {\n${statements}}\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_while'] = function (block) {
-        const condition = javascriptGenerator.valueToCode(block, 'CONDITION', javascriptGenerator.ORDER_NONE) || 'false';
-        const statements = javascriptGenerator.statementToCode(block, 'DO');
-        return `while (${condition}) {\n${statements}}\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_repeat'] = function (block) {
-        const times = javascriptGenerator.valueToCode(block, 'TIMES', javascriptGenerator.ORDER_ASSIGNMENT) || '10';
-        const statements = javascriptGenerator.statementToCode(block, 'DO');
-        return `for (let count = 0; count < ${times}; count++) {\n${statements}}\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_number'] = function (block) {
-        const num = block.getFieldValue('NUM');
-        return [num, javascriptGenerator.ORDER_ATOMIC];
-    };
-
-    javascriptGenerator.forBlock['custom_math'] = function (block) {
-        const a = javascriptGenerator.valueToCode(block, 'A', javascriptGenerator.ORDER_MULTIPLICATIVE) || '0';
-        const b = javascriptGenerator.valueToCode(block, 'B', javascriptGenerator.ORDER_MULTIPLICATIVE) || '0';
-        const op = block.getFieldValue('OP');
-        const operators = { ADD: '+', SUB: '-', MUL: '*', DIV: '/', MOD: '%' };
-        const order = ['MUL', 'DIV', 'MOD'].includes(op) ? javascriptGenerator.ORDER_MULTIPLICATIVE : javascriptGenerator.ORDER_ADDITIVE;
-        return [`${a} ${operators[op]} ${b}`, order];
-    };
-
-    javascriptGenerator.forBlock['print_value'] = function (block) {
+    javascriptGenerator.forBlock['print_step'] = function (block) {
         const value = javascriptGenerator.valueToCode(block, 'VALUE', javascriptGenerator.ORDER_NONE) || "''";
         return `console.log(${value});\n`;
     };
 
-    javascriptGenerator.forBlock['custom_text'] = function (block) {
-        const text = block.getFieldValue('TEXT');
-        return [`"${text}"`, javascriptGenerator.ORDER_ATOMIC];
-    };
-
-    javascriptGenerator.forBlock['get_variable'] = function (block) {
-        const variable = javascriptGenerator.getVariableName(block.getFieldValue('VAR'));
-        return [variable, javascriptGenerator.ORDER_ATOMIC];
-    };
-
-    javascriptGenerator.forBlock['set_variable'] = function (block) {
-        const variable = javascriptGenerator.getVariableName(block.getFieldValue('VAR'));
-        const value = javascriptGenerator.valueToCode(block, 'VALUE', javascriptGenerator.ORDER_ASSIGNMENT) || '0';
-        return `${variable} = ${value};\n`;
-    };
-
-    javascriptGenerator.forBlock['custom_boolean'] = function (block) {
-        const bool = block.getFieldValue('BOOL');
-        return [bool.toLowerCase(), javascriptGenerator.ORDER_ATOMIC];
-    };
-
-    // Python generators
+    // Python generators for custom blocks
     pythonGenerator.forBlock['array_create'] = function (block) {
         const values = block.getFieldValue('VALUES');
         return [`${values}`, pythonGenerator.ORDER_ATOMIC];
@@ -428,94 +185,19 @@ const defineCustomBlocks = () => {
         return `${array}[${i}], ${array}[${j}] = ${array}[${j}], ${array}[${i}]\n`;
     };
 
-    pythonGenerator.forBlock['compare_values'] = function (block) {
-        const left = pythonGenerator.valueToCode(block, 'LEFT', pythonGenerator.ORDER_RELATIONAL) || '0';
-        const right = pythonGenerator.valueToCode(block, 'RIGHT', pythonGenerator.ORDER_RELATIONAL) || '0';
-        const op = block.getFieldValue('OP');
-        const operators = { GT: '>', LT: '<', GTE: '>=', LTE: '<=', EQ: '==', NEQ: '!=' };
-        return [`${left} ${operators[op]} ${right}`, pythonGenerator.ORDER_RELATIONAL];
-    };
-
-    pythonGenerator.forBlock['custom_if'] = function (block) {
-        const condition = pythonGenerator.valueToCode(block, 'CONDITION', pythonGenerator.ORDER_NONE) || 'False';
-        const statements = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
-        return `if ${condition}:\n${statements}`;
-    };
-
-    pythonGenerator.forBlock['custom_if_else'] = function (block) {
-        const condition = pythonGenerator.valueToCode(block, 'CONDITION', pythonGenerator.ORDER_NONE) || 'False';
-        const doStatements = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
-        const elseStatements = pythonGenerator.statementToCode(block, 'ELSE') || '    pass\n';
-        return `if ${condition}:\n${doStatements}else:\n${elseStatements}`;
-    };
-
-    pythonGenerator.forBlock['custom_for'] = function (block) {
-        const variable = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
-        const from = pythonGenerator.valueToCode(block, 'FROM', pythonGenerator.ORDER_NONE) || '0';
-        const to = pythonGenerator.valueToCode(block, 'TO', pythonGenerator.ORDER_NONE) || '10';
-        const statements = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
-        return `for ${variable} in range(${from}, ${to}):\n${statements}`;
-    };
-
-    pythonGenerator.forBlock['custom_while'] = function (block) {
-        const condition = pythonGenerator.valueToCode(block, 'CONDITION', pythonGenerator.ORDER_NONE) || 'False';
-        const statements = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
-        return `while ${condition}:\n${statements}`;
-    };
-
-    pythonGenerator.forBlock['custom_repeat'] = function (block) {
-        const times = pythonGenerator.valueToCode(block, 'TIMES', pythonGenerator.ORDER_NONE) || '10';
-        const statements = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
-        return `for _ in range(${times}):\n${statements}`;
-    };
-
-    pythonGenerator.forBlock['custom_number'] = function (block) {
-        const num = block.getFieldValue('NUM');
-        return [num, pythonGenerator.ORDER_ATOMIC];
-    };
-
-    pythonGenerator.forBlock['custom_math'] = function (block) {
-        const a = pythonGenerator.valueToCode(block, 'A', pythonGenerator.ORDER_MULTIPLICATIVE) || '0';
-        const b = pythonGenerator.valueToCode(block, 'B', pythonGenerator.ORDER_MULTIPLICATIVE) || '0';
-        const op = block.getFieldValue('OP');
-        const operators = { ADD: '+', SUB: '-', MUL: '*', DIV: '/', MOD: '%' };
-        return [`${a} ${operators[op]} ${b}`, pythonGenerator.ORDER_ADDITIVE];
-    };
-
-    pythonGenerator.forBlock['print_value'] = function (block) {
+    pythonGenerator.forBlock['print_step'] = function (block) {
         const value = pythonGenerator.valueToCode(block, 'VALUE', pythonGenerator.ORDER_NONE) || "''";
         return `print(${value})\n`;
     };
-
-    pythonGenerator.forBlock['custom_text'] = function (block) {
-        const text = block.getFieldValue('TEXT');
-        return [`"${text}"`, pythonGenerator.ORDER_ATOMIC];
-    };
-
-    pythonGenerator.forBlock['get_variable'] = function (block) {
-        const variable = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
-        return [variable, pythonGenerator.ORDER_ATOMIC];
-    };
-
-    pythonGenerator.forBlock['set_variable'] = function (block) {
-        const variable = pythonGenerator.getVariableName(block.getFieldValue('VAR'));
-        const value = pythonGenerator.valueToCode(block, 'VALUE', pythonGenerator.ORDER_NONE) || '0';
-        return `${variable} = ${value}\n`;
-    };
-
-    pythonGenerator.forBlock['custom_boolean'] = function (block) {
-        const bool = block.getFieldValue('BOOL');
-        return [bool === 'TRUE' ? 'True' : 'False', pythonGenerator.ORDER_ATOMIC];
-    };
 };
 
-// Define toolbox with ONLY custom blocks (no built-in blocks that cause issues)
+// Define toolbox with standard built-in blocks + custom blocks
 const toolboxConfig = {
     kind: 'categoryToolbox',
     contents: [
         {
             kind: 'category',
-            name: 'Arrays',
+            name: 'Arrays (Custom)', // Renamed to distinguish
             colour: '#a855f7',
             contents: [
                 { kind: 'block', type: 'array_create' },
@@ -530,10 +212,13 @@ const toolboxConfig = {
             name: 'Logic',
             colour: '#60a5fa',
             contents: [
-                { kind: 'block', type: 'custom_if' },
-                { kind: 'block', type: 'custom_if_else' },
-                { kind: 'block', type: 'compare_values' },
-                { kind: 'block', type: 'custom_boolean' },
+                { kind: 'block', type: 'controls_if' },
+                { kind: 'block', type: 'logic_compare' },
+                { kind: 'block', type: 'logic_operation' },
+                { kind: 'block', type: 'logic_negate' },
+                { kind: 'block', type: 'logic_boolean' },
+                { kind: 'block', type: 'logic_null' },
+                { kind: 'block', type: 'logic_ternary' },
             ]
         },
         {
@@ -541,9 +226,11 @@ const toolboxConfig = {
             name: 'Loops',
             colour: '#22c55e',
             contents: [
-                { kind: 'block', type: 'custom_repeat' },
-                { kind: 'block', type: 'custom_while' },
-                { kind: 'block', type: 'custom_for' },
+                { kind: 'block', type: 'controls_repeat_ext' },
+                { kind: 'block', type: 'controls_whileUntil' },
+                { kind: 'block', type: 'controls_for' },
+                { kind: 'block', type: 'controls_forEach' },
+                { kind: 'block', type: 'controls_flow_statements' },
             ]
         },
         {
@@ -551,17 +238,19 @@ const toolboxConfig = {
             name: 'Math',
             colour: '#f59e0b',
             contents: [
-                { kind: 'block', type: 'custom_number' },
-                { kind: 'block', type: 'custom_math' },
-            ]
-        },
-        {
-            kind: 'category',
-            name: 'Variables',
-            colour: '#ef4444',
-            contents: [
-                { kind: 'block', type: 'set_variable' },
-                { kind: 'block', type: 'get_variable' },
+                { kind: 'block', type: 'math_number' },
+                { kind: 'block', type: 'math_arithmetic' },
+                { kind: 'block', type: 'math_single' },
+                { kind: 'block', type: 'math_trig' },
+                { kind: 'block', type: 'math_constant' },
+                { kind: 'block', type: 'math_number_property' },
+                { kind: 'block', type: 'math_round' },
+                { kind: 'block', type: 'math_on_list' },
+                { kind: 'block', type: 'math_modulo' },
+                { kind: 'block', type: 'math_constrain' },
+                { kind: 'block', type: 'math_random_int' },
+                { kind: 'block', type: 'math_random_float' },
+                { kind: 'block', type: 'math_atan2' },
             ]
         },
         {
@@ -569,17 +258,58 @@ const toolboxConfig = {
             name: 'Text',
             colour: '#06b6d4',
             contents: [
-                { kind: 'block', type: 'custom_text' },
-                { kind: 'block', type: 'print_value' },
+                { kind: 'block', type: 'text' },
+                { kind: 'block', type: 'text_join' },
+                { kind: 'block', type: 'text_append' },
+                { kind: 'block', type: 'text_length' },
+                { kind: 'block', type: 'text_isEmpty' },
+                { kind: 'block', type: 'text_indexOf' },
+                { kind: 'block', type: 'text_charAt' },
+                { kind: 'block', type: 'text_getSubstring' },
+                { kind: 'block', type: 'text_changeCase' },
+                { kind: 'block', type: 'text_trim' },
+                { kind: 'block', type: 'print_step' }, // Custom block kept here
+                { kind: 'block', type: 'text_print' },
+                { kind: 'block', type: 'text_prompt_ext' },
             ]
         },
+        {
+            kind: 'category',
+            name: 'Lists',
+            colour: '#7c3aed',
+            contents: [
+                { kind: 'block', type: 'lists_create_with' },
+                { kind: 'block', type: 'lists_repeat' },
+                { kind: 'block', type: 'lists_length' },
+                { kind: 'block', type: 'lists_isEmpty' },
+                { kind: 'block', type: 'lists_indexOf' },
+                { kind: 'block', type: 'lists_getIndex' },
+                { kind: 'block', type: 'lists_setIndex' },
+                { kind: 'block', type: 'lists_getSublist' },
+                { kind: 'block', type: 'lists_split' },
+                { kind: 'block', type: 'lists_sort' },
+            ]
+        },
+
+        {
+            kind: 'category',
+            name: 'Variables',
+            colour: '#ef4444',
+            custom: 'VARIABLE'
+        },
+        {
+            kind: 'category',
+            name: 'Functions',
+            colour: '#6366f1',
+            custom: 'PROCEDURE'
+        }
     ]
 };
 
 // Flag to track if blocks are defined
 let blocksDefinedFlag = false;
 
-const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
+const BlocklyWorkspace = ({ onCodeChange, initialJson }) => {
     const blocklyDiv = useRef(null);
     const workspaceRef = useRef(null);
     const onCodeChangeRef = useRef(onCodeChange);
@@ -590,8 +320,11 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
         onCodeChangeRef.current = onCodeChange;
     }, [onCodeChange]);
 
-    // Define custom blocks once (outside of React lifecycle)
+    // Define custom blocks once
     if (!blocksDefinedFlag) {
+        // Register standard blocks
+        Blockly.common.defineBlocks(libraryBlocks);
+        // Register custom blocks
         defineCustomBlocks();
         blocksDefinedFlag = true;
     }
@@ -622,11 +355,10 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
                 }
             });
 
-            // Load initial XML if provided
-            if (initialXml) {
+            // Load initial JSON if provided
+            if (initialJson) {
                 try {
-                    const dom = Blockly.utils.xml.textToDom(initialXml);
-                    Blockly.Xml.domToWorkspace(dom, workspaceRef.current);
+                    Blockly.serialization.workspaces.load(initialJson, workspaceRef.current);
                 } catch (e) {
                     console.warn('Failed to load initial blocks:', e);
                 }
@@ -634,14 +366,16 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
 
             // Listen for workspace changes
             workspaceRef.current.addChangeListener((event) => {
-                // Filter out UI events to reduce unnecessary updates
                 if (event.isUiEvent) return;
 
                 if (onCodeChangeRef.current) {
-                    const code = javascriptGenerator.workspaceToCode(workspaceRef.current);
-                    const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
-                    const xmlText = Blockly.Xml.domToText(xml);
-                    onCodeChangeRef.current({ code, xml: xmlText, language: 'javascript' });
+                    try {
+                        const code = javascriptGenerator.workspaceToCode(workspaceRef.current);
+                        const json = Blockly.serialization.workspaces.save(workspaceRef.current);
+                        onCodeChangeRef.current({ code, json, language: 'javascript' });
+                    } catch (e) {
+                        console.error("Error generating code:", e);
+                    }
                 }
             });
         }
@@ -654,19 +388,20 @@ const BlocklyWorkspace = ({ onCodeChange, initialXml }) => {
         };
     }, []);
 
-    // Handle language change
     const handleLanguageChange = (lang) => {
         setLanguage(lang);
         setTimeout(() => {
             if (workspaceRef.current && onCodeChangeRef.current) {
-                const code = lang === 'python'
-                    ? pythonGenerator.workspaceToCode(workspaceRef.current)
-                    : javascriptGenerator.workspaceToCode(workspaceRef.current);
+                try {
+                    const code = lang === 'python'
+                        ? pythonGenerator.workspaceToCode(workspaceRef.current)
+                        : javascriptGenerator.workspaceToCode(workspaceRef.current);
 
-                const xml = Blockly.Xml.workspaceToDom(workspaceRef.current);
-                const xmlText = Blockly.Xml.domToText(xml);
-
-                onCodeChangeRef.current({ code, xml: xmlText, language: lang });
+                    const json = Blockly.serialization.workspaces.save(workspaceRef.current);
+                    onCodeChangeRef.current({ code, json, language: lang });
+                } catch (e) {
+                    console.error("Error generating code on language switch:", e);
+                }
             }
         }, 0);
     };
