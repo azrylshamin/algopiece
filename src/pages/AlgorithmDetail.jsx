@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Search, ArrowUpDown, Network, ChevronRight, Play } from 'lucide-react';
 import { getAlgorithmById, getAllAlgorithms } from '../data';
 import ArrayVisualizer from '../components/visualizers/ArrayVisualizer';
+import GraphVisualizer from '../components/visualizers/GraphVisualizer';
 import './AlgorithmDetail.css';
 
 // Icon mapping for categories
@@ -86,7 +87,11 @@ const AlgorithmDetail = () => {
                     <section className="detail-section visualizer-section">
                         <h2><Play size={20} /> Visualization</h2>
                         <div className="visualizer-container card">
-                            <ArrayVisualizer algorithmId={algorithm.id} />
+                            {algorithm.category === 'graph' ? (
+                                <GraphVisualizer algorithmId={algorithm.id} />
+                            ) : (
+                                <ArrayVisualizer algorithmId={algorithm.id} />
+                            )}
                         </div>
                     </section>
 

@@ -13,8 +13,52 @@ const ArrayVisualizer = ({ algorithmId }) => {
     const [searchTarget, setSearchTarget] = useState(null);
     const [foundIndex, setFoundIndex] = useState(-1);
     const [stepInfo, setStepInfo] = useState('Click Play to start visualization');
+    const [customInput, setCustomInput] = useState('');
+    const [inputError, setInputError] = useState('');
     const animationRef = useRef(null);
     const pauseRef = useRef(false);
+
+    // Handle Custom Input
+    const handleCustomInput = () => {
+        if (!customInput.trim()) {
+            setInputError('Please enter some numbers');
+            return;
+        }
+
+        const values = customInput.split(',')
+            .map(v => v.trim())
+            .filter(v => v !== '')
+            .map(Number);
+
+        if (values.some(isNaN)) {
+            setInputError('Invalid input: Please enter numbers only (comma separated)');
+            return;
+        }
+
+        if (values.length > 20) {
+            setInputError('Too many elements (max 20)');
+            return;
+        }
+
+        if (values.length < 2) {
+            setInputError('Please enter at least 2 numbers');
+            return;
+        }
+
+        if (algorithmId === 'binary-search') {
+            values.sort((a, b) => a - b);
+        }
+
+        setArray(values);
+        setComparing([]);
+        setSorted([]);
+        setFoundIndex(-1);
+        setSearchTarget(null);
+        setIsRunning(false);
+        setIsPaused(false);
+        setStepInfo('✓ Custom array set!');
+        setInputError('');
+    };
 
     // Generate random array
     const generateArray = useCallback(() => {
@@ -370,6 +414,23 @@ const ArrayVisualizer = ({ algorithmId }) => {
                     <span>{speed}%</span>
                 </div>
             </div>
+
+            {/* Custom Input */}
+            {!isRunning && (
+                <div className="custom-input-section">
+                    <input
+                        type="text"
+                        placeholder="Custom data (e.g. 10, 50, 25, 90)"
+                        value={customInput}
+                        onChange={(e) => setCustomInput(e.target.value)}
+                        className="custom-input_field"
+                    />
+                    <button className="btn btn-secondary" onClick={handleCustomInput}>
+                        Set Array
+                    </button>
+                    {inputError && <span className="input-error">{inputError}</span>}
+                </div>
+            )}
 
             {/* Step Info */}
             <div className="step-info">
