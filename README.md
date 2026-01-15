@@ -116,5 +116,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5.  Open a Pull Request
 
 ---
-
-*Built with ❤️ for the Final Year Project.*

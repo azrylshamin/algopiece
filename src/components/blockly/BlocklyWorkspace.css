@@ -51,9 +51,25 @@
     color: white;
 }
 
+/* Main injection div must handle its own layout */
 .blockly-container {
     flex: 1;
     min-height: 400px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    /* Prevent native scrollbars interfering with Blockly SVG scrollbars */
+}
+
+/* 
+   FIX: Force hide the flyout scrollbar when the flyout itself is hidden.
+   Blockly controls the flyout visibility via inline styles on the .blocklyFlyout group.
+   The scrollbar is a sibling, so we use the sibling combinator.
+*/
+.blocklyFlyout[style*="display: none"]~.blocklyFlyoutScrollbar,
+.blocklyFlyout[style*="visibility: hidden"]~.blocklyFlyoutScrollbar {
+    display: none;
+    visibility: hidden;
 }
 
 /* Blockly theme overrides */
