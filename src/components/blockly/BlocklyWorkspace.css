@@ -61,6 +61,17 @@
     /* Prevent native scrollbars interfering with Blockly SVG scrollbars */
 }
 
+/* FIX: Blockly's injectionDiv needs to fill the container */
+.blockly-container .injectionDiv {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
 /* 
    FIX: Force hide the flyout scrollbar when the flyout itself is hidden.
    Blockly controls the flyout visibility via inline styles on the .blocklyFlyout group.

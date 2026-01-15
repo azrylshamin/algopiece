@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Search, ArrowUpDown, Network, ChevronRight, Play } from 'lucide-react';
-import { getAlgorithmById, getAllAlgorithms } from '../data';
+import {
+    Search,
+    ArrowUpDown,
+    Network,
+    ChevronRight,
+    Play,
+    BookOpen,
+    Puzzle,
+    Code,
+    Trophy
+} from 'lucide-react';
+import { getAlgorithmById, getAllAlgorithms, getChallengeById } from '../data';
 import ArrayVisualizer from '../components/visualizers/ArrayVisualizer';
 import GraphVisualizer from '../components/visualizers/GraphVisualizer';
+import { ChallengePanel } from '../components/challenge';
 import './AlgorithmDetail.css';
 
 // Icon mapping for categories
@@ -16,12 +27,39 @@ const categoryIcons = {
 const AlgorithmDetail = () => {
     const { id } = useParams();
     const [algorithm, setAlgorithm] = useState(null);
+    const [challenge, setChallenge] = useState(null);
+    const [activeTab, setActiveTab] = useState('learn');
     const [activeCodeTab, setActiveCodeTab] = useState('javascript');
+    const [challengeCompleted, setChallengeCompleted] = useState(false);
 
     useEffect(() => {
         const algo = getAlgorithmById(id);
         setAlgorithm(algo);
+
+        const challengeData = getChallengeById(id);
+        setChallenge(challengeData);
+
+        // Check localStorage for completion status
+        const completedChallenges = JSON.parse(localStorage.getItem('completedChallenges') || '[]');
+        setChallengeCompleted(completedChallenges.includes(id));
+
+        // Reset to learn tab when algorithm changes
+        setActiveTab('learn');
     }, [id]);
+
+    const handleChallengeComplete = (algorithmId, xpReward) => {
+        // Save to localStorage
+        const completedChallenges = JSON.parse(localStorage.getItem('completedChallenges') || '[]');
+        if (!completedChallenges.includes(algorithmId)) {
+            completedChallenges.push(algorithmId);
+            localStorage.setItem('completedChallenges', JSON.stringify(completedChallenges));
+
+            // Add XP
+            const currentXP = parseInt(localStorage.getItem('userXP') || '0', 10);
+            localStorage.setItem('userXP', String(currentXP + xpReward));
+        }
+        setChallengeCompleted(true);
+    };
 
     if (!algorithm) {
         return (
@@ -76,108 +114,182 @@ const AlgorithmDetail = () => {
                                 <span className="meta-item">
                                     <strong>Space:</strong> {algorithm.spaceComplexity}
                                 </span>
+                                {challengeCompleted && (
+                                    <span className="completed-badge">
+                                        <Trophy size={14} />
+                                        Challenge Complete
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
                 </header>
 
-                {/* Main Content */}
-                <div className="detail-content">
-                    {/* Visualizer Section */}
-                    <section className="detail-section visualizer-section">
-                        <h2><Play size={20} /> Visualization</h2>
-                        <div className="visualizer-container card">
-                            {algorithm.category === 'graph' ? (
-                                <GraphVisualizer algorithmId={algorithm.id} />
-                            ) : (
-                                <ArrayVisualizer algorithmId={algorithm.id} />
+                {/* Learning Flow Tabs */}
+                <div className="learning-tabs">
+                    <button
+                        className={`learning-tab ${activeTab === 'learn' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('learn')}
+                    >
+                        <BookOpen size={18} />
+                        <span>Learn</span>
+                        <span className="tab-step">1</span>
+                    </button>
+                    <div className="tab-arrow">→</div>
+                    <button
+                        className={`learning-tab ${activeTab === 'challenge' ? 'active' : ''} ${challengeCompleted ? 'completed' : ''}`}
+                        onClick={() => setActiveTab('challenge')}
+                        disabled={!challenge}
+                    >
+                        <Puzzle size={18} />
+                        <span>Challenge</span>
+                        <span className="tab-step">2</span>
+                        {challengeCompleted && <Trophy size={14} className="tab-complete-icon" />}
+                    </button>
+                    <div className="tab-arrow">→</div>
+                    <button
+                        className={`learning-tab ${activeTab === 'code' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('code')}
+                    >
+                        <Code size={18} />
+                        <span>Code</span>
+                        <span className="tab-step">3</span>
+                    </button>
+                </div>
+
+                {/* Tab Content */}
+                <div className="tab-content">
+                    {/* LEARN TAB */}
+                    {activeTab === 'learn' && (
+                        <div className="learn-content">
+                            {/* Visualizer Section */}
+                            <section className="detail-section visualizer-section">
+                                <h2><Play size={20} /> Visualization</h2>
+                                <div className="visualizer-container card">
+                                    {algorithm.category === 'graph' ? (
+                                        <GraphVisualizer algorithmId={algorithm.id} />
+                                    ) : (
+                                        <ArrayVisualizer algorithmId={algorithm.id} />
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Description Section */}
+                            <section className="detail-section">
+                                <h2>How It Works</h2>
+                                <div className="description-content card">
+                                    {algorithm.longDescription.split('\n\n').map((paragraph, index) => {
+                                        if (paragraph.startsWith('**')) {
+                                            const text = paragraph.replace(/\*\*/g, '');
+                                            return <h4 key={index}>{text}</h4>;
+                                        }
+                                        if (paragraph.startsWith('-')) {
+                                            const items = paragraph.split('\n').filter(item => item.startsWith('-'));
+                                            return (
+                                                <ul key={index}>
+                                                    {items.map((item, i) => (
+                                                        <li key={i}>{item.replace(/^- /, '')}</li>
+                                                    ))}
+                                                </ul>
+                                            );
+                                        }
+                                        if (/^\d\./.test(paragraph)) {
+                                            const items = paragraph.split('\n').filter(item => /^\d\./.test(item));
+                                            return (
+                                                <ol key={index}>
+                                                    {items.map((item, i) => (
+                                                        <li key={i}>{item.replace(/^\d\.\s*/, '')}</li>
+                                                    ))}
+                                                </ol>
+                                            );
+                                        }
+                                        return <p key={index}>{paragraph}</p>;
+                                    })}
+                                </div>
+                            </section>
+
+                            {/* CTA to Challenge */}
+                            {challenge && (
+                                <div className="next-step-cta">
+                                    <button
+                                        className="btn btn-primary btn-lg"
+                                        onClick={() => setActiveTab('challenge')}
+                                    >
+                                        <Puzzle size={20} />
+                                        Ready to Practice? Try the Challenge!
+                                    </button>
+                                </div>
                             )}
                         </div>
-                    </section>
+                    )}
 
-                    {/* Description Section */}
-                    <section className="detail-section">
-                        <h2>How It Works</h2>
-                        <div className="description-content card">
-                            {algorithm.longDescription.split('\n\n').map((paragraph, index) => {
-                                if (paragraph.startsWith('**')) {
-                                    // Handle bold headers
-                                    const text = paragraph.replace(/\*\*/g, '');
-                                    return <h4 key={index}>{text}</h4>;
-                                }
-                                if (paragraph.startsWith('-')) {
-                                    // Handle list items
-                                    const items = paragraph.split('\n').filter(item => item.startsWith('-'));
-                                    return (
-                                        <ul key={index}>
-                                            {items.map((item, i) => (
-                                                <li key={i}>{item.replace(/^- /, '')}</li>
-                                            ))}
-                                        </ul>
-                                    );
-                                }
-                                if (/^\d\./.test(paragraph)) {
-                                    // Handle numbered list
-                                    const items = paragraph.split('\n').filter(item => /^\d\./.test(item));
-                                    return (
-                                        <ol key={index}>
-                                            {items.map((item, i) => (
-                                                <li key={i}>{item.replace(/^\d\.\s*/, '')}</li>
-                                            ))}
-                                        </ol>
-                                    );
-                                }
-                                return <p key={index}>{paragraph}</p>;
-                            })}
+                    {/* CHALLENGE TAB */}
+                    {activeTab === 'challenge' && challenge && (
+                        <ChallengePanel
+                            challenge={challenge}
+                            algorithmId={algorithm.id}
+                            onComplete={handleChallengeComplete}
+                        />
+                    )}
+
+                    {activeTab === 'challenge' && !challenge && (
+                        <div className="no-challenge card">
+                            <Puzzle size={48} />
+                            <h3>Challenge Coming Soon!</h3>
+                            <p>We're working on an interactive challenge for this algorithm. Check back soon!</p>
                         </div>
-                    </section>
+                    )}
 
-                    {/* Code Section */}
-                    <section className="detail-section">
-                        <h2>Implementation</h2>
-                        <div className="code-section card">
-                            <div className="code-tabs">
-                                <button
-                                    className={`code-tab ${activeCodeTab === 'javascript' ? 'active' : ''}`}
-                                    onClick={() => setActiveCodeTab('javascript')}
-                                >
-                                    JavaScript
-                                </button>
-                                <button
-                                    className={`code-tab ${activeCodeTab === 'python' ? 'active' : ''}`}
-                                    onClick={() => setActiveCodeTab('python')}
-                                >
-                                    Python
-                                </button>
-                            </div>
-                            <div className="code-block">
-                                <pre>
-                                    <code>{algorithm.code[activeCodeTab]}</code>
-                                </pre>
-                            </div>
+                    {/* CODE TAB */}
+                    {activeTab === 'code' && (
+                        <div className="code-content">
+                            <section className="detail-section">
+                                <h2>Reference Implementation</h2>
+                                <div className="code-section card">
+                                    <div className="code-tabs">
+                                        <button
+                                            className={`code-tab ${activeCodeTab === 'javascript' ? 'active' : ''}`}
+                                            onClick={() => setActiveCodeTab('javascript')}
+                                        >
+                                            JavaScript
+                                        </button>
+                                        <button
+                                            className={`code-tab ${activeCodeTab === 'python' ? 'active' : ''}`}
+                                            onClick={() => setActiveCodeTab('python')}
+                                        >
+                                            Python
+                                        </button>
+                                    </div>
+                                    <div className="code-block">
+                                        <pre>
+                                            <code>{algorithm.code[activeCodeTab]}</code>
+                                        </pre>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Related Algorithms */}
+                            {relatedAlgorithms.length > 0 && (
+                                <section className="detail-section">
+                                    <h2>Related Algorithms</h2>
+                                    <div className="related-grid">
+                                        {relatedAlgorithms.map((algo) => (
+                                            <Link
+                                                to={`/algorithms/${algo.id}`}
+                                                key={algo.id}
+                                                className="related-card card"
+                                            >
+                                                <h4>{algo.name}</h4>
+                                                <p>{algo.description}</p>
+                                                <span className={`badge ${getDifficultyClass(algo.difficulty)}`}>
+                                                    {algo.difficulty}
+                                                </span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
-                    </section>
-
-                    {/* Related Algorithms */}
-                    {relatedAlgorithms.length > 0 && (
-                        <section className="detail-section">
-                            <h2>Related Algorithms</h2>
-                            <div className="related-grid">
-                                {relatedAlgorithms.map((algo) => (
-                                    <Link
-                                        to={`/algorithms/${algo.id}`}
-                                        key={algo.id}
-                                        className="related-card card"
-                                    >
-                                        <h4>{algo.name}</h4>
-                                        <p>{algo.description}</p>
-                                        <span className={`badge ${getDifficultyClass(algo.difficulty)}`}>
-                                            {algo.difficulty}
-                                        </span>
-                                    </Link>
-                                ))}
-                            </div>
-                        </section>
                     )}
                 </div>
             </div>

@@ -5,3 +5,5 @@
 
 export * from './algorithms';
 export * from './user';
+export * from './challenges';
+

@@ -234,3 +234,176 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================
+   Learning Flow Tabs
+   ============================================ */
+
+.learning-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    padding: var(--space-4);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-xl);
+}
+
+.learning-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    background: transparent;
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+.learning-tab:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.learning-tab.active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.learning-tab.completed {
+    border: 2px solid var(--color-success);
+}
+
+.learning-tab.completed.active {
+    border-color: transparent;
+}
+
+.learning-tab:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tab-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-muted);
+}
+
+.learning-tab.active .tab-step {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.tab-complete-icon {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    color: var(--color-success);
+    background: var(--color-bg);
+    border-radius: 50%;
+}
+
+.tab-arrow {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+}
+
+/* Completed Badge in Header */
+.completed-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-success);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Tab Content */
+.tab-content {
+    min-height: 400px;
+}
+
+.learn-content,
+.code-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+}
+
+/* Next Step CTA */
+.next-step-cta {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-8);
+    background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-primary-rgb), 0.05));
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--color-primary);
+}
+
+.next-step-cta .btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-base);
+}
+
+/* No Challenge State */
+.no-challenge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-16);
+    color: var(--color-text-muted);
+}
+
+.no-challenge svg {
+    margin-bottom: var(--space-4);
+    opacity: 0.5;
+}
+
+.no-challenge h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+}
+
+.no-challenge p {
+    max-width: 400px;
+}
+
+/* Responsive for tabs */
+@media (max-width: 768px) {
+    .learning-tabs {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .tab-arrow {
+        display: none;
+    }
+
+    .learning-tab span:not(.tab-step) {
+        display: none;
+    }
+
+    .learning-tab {
+        padding: var(--space-3) var(--space-4);
+    }
+}
